@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="spotmicro">
+
+  <!-- Import all Gazebo-customization elements, including Gazebo colors -->
+  <xacro:include filename="$(find spotmicro_description)/models/spotmicro.gazebo" />
+  <xacro:include filename="$(find spotmicro_description)/models/materials.xacro" />
+  <xacro:include filename="$(find spotmicro_description)/models/macro.xacro" />
+
+  <!-- Robot Body -->
+
+  <link name="dummy_link">
+  </link>
+
+  <joint name="dummy_base" type="fixed">
+    <parent link="dummy_link"/>
+    <child link="base_link"/>
+  </joint>
+
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <mesh filename="package://spotmicro_description/meshes/mainbody.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="black"/> 
+      <origin rpy="0 0 0" xyz="-0.045 -0.060 -0.015"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${body_length} ${body_width} ${body_height}"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="2.80"/>
+      <inertia ixx="0.05" ixy="0" ixz="0" iyy="0.05" iyz="0" izz="0.05" />
+    </inertial>
+  </link>
+
+  <!-- Lidar Backpack -->
+
+   <link name="lidar_link">
+    <visual>
+      <geometry>
+          <mesh filename="package://spotmicro_description/meshes/rplidar_main.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="black"/> 
+      <origin rpy="1.57075 0 0" xyz="${-lidar_length/2-0.015} ${lidar_width/2} ${-lidar_beam_height}"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${lidar_length} ${lidar_width} ${lidar_height}"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="0.50"/>
+      <inertia ixx="0.05" ixy="0" ixz="0" iyy="100" iyz="0" izz="0.05" />
+    </inertial>
+  </link>
+  <joint name="base_lidar" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_link"/>
+    <origin xyz="0 0 ${body_height/2+lidar_beam_height}"/>
+  </joint>  
+
+  <link name="rear_link">
+    <visual>
+      <geometry>
+        <mesh filename="package://spotmicro_description/meshes/backpart.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="-0.040 -0.060 -0.0140"/>
+      <material name="yellow"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${rear_length} ${body_width} ${body_height}"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0.135 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="0.20"/>
+      <inertia ixx="0.05" ixy="0" ixz="0" iyy="100" iyz="0" izz="0.05" />
+    </inertial>
+  </link>
+  <joint name="base_rear" type="fixed">
+    <parent link="base_link"/>
+    <child link="rear_link"/>
+  </joint>
+
+  <link name="front_link">
+    <visual>
+      <geometry>
+        <mesh filename="package://spotmicro_description/meshes/frontpart.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="-0.040 -0.060 -0.0140"/>
+      <material name="yellow"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${front_length} ${body_width} ${body_height}"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="-0.145 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="0.20"/>
+      <inertia ixx="0.05" ixy="0" ixz="0" iyy="0.05" iyz="0" izz="0.05" />
+    </inertial>
+
+  </link>
+  <joint name="base_front" type="fixed">
+    <parent link="base_link"/>
+    <child link="front_link"/>
+  </joint>
+
+  <!-- create Legs -->
+
+  <xacro:gen_full_leg_joint pos="front_left" shiftx="-${shiftx}" shifty="-${shifty}" shift="-${shift}" left="true"/>
+  <xacro:gen_full_leg_joint pos="front_right" shiftx="-${shiftx}" shifty="${shifty}" shift="${shift}" left="false"/>
+  <xacro:gen_full_leg_joint pos="rear_left" shiftx="${shiftx}" shifty="-${shifty}" shift="-${shift}" left="true"/>
+  <xacro:gen_full_leg_joint pos="rear_right" shiftx="${shiftx}" shifty="${shifty}" shift="${shift}" left="false"/>
+
+</robot>

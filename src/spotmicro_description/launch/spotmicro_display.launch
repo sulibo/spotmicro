@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+  <!-- these are the arguments you can pass this launch file, for example paused:=true -->
+  <arg name="paused" default="true"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="debug" default="false"/>
+
+  <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find spotmicro_description)/worlds/empty_world.world"/>
+    <arg name="debug" value="$(arg debug)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="headless" value="$(arg headless)"/>
+  </include>
+
+  <!-- Load the URDF into the ROS Parameter Server -->
+  <param name="robot_description"
+    command="$(find xacro)/xacro --inorder '$(find spotmicro_description)/models/spotmicro.xacro'" />
+
+  <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
+  <arg name="x" default="0"/>
+  <arg name="y" default="0"/>
+  <arg name="z" default="0.3"/>
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+    args="-urdf -model spotmicro -param robot_description -J front_left_foot 1.8
+    -J front_right_leg -0.5 -J front_left_leg -0.5 -J front_right_foot 1.8 -J rear_right_leg -0.5 -J rear_left_leg -0.5 -J rear_right_foot 1.8 -J rear_left_foot 1.8 -x $(arg x) -y $(arg y) -z $(arg z)"/>
+
+  <!-- loads the controllers -->
+  <rosparam file="$(find spotmicro_description)/config/config.yaml" command="load" />
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" ns="/spotmicro" args="joint_state_controller
+                                                                                                front_left_shoulder_position_controller 
+                                                                                                front_left_foot_position_controller
+                                                                                                front_left_leg_position_controller 
+                                                                                                front_right_shoulder_position_controller 
+                                                                                                front_right_foot_position_controller
+                                                                                                front_right_leg_position_controller 
+                                                                                                rear_left_shoulder_position_controller 
+                                                                                                rear_left_foot_position_controller
+                                                                                                rear_left_leg_position_controller 
+                                                                                                rear_right_shoulder_position_controller 
+                                                                                                rear_right_foot_position_controller
+                                                                                                rear_right_leg_position_controller 
+                                                                                                "/> 
+
+ <!-- converts joint states to TF transforms -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen">
+    <remap from="/joint_states" to="/spotmicro/joint_states" />
+  </node>
+
+  <!-- Show in Rviz   -->
+  <arg name="rvizconfig" default="$(find spotmicro_description)/rviz/urdf.rviz"/>
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true"/>
+
+</launch>
