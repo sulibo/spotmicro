@@ -13,7 +13,7 @@
   <gazebo reference="lidar_link">
    <sensor type="ray" name="rplidar_a1">
      <pose>0 0 0 0 0 0</pose>
-     <visualize>true</visualize>
+     <visualize>false</visualize>
      <update_rate>5.5</update_rate>
      <ray>
        <scan>
