@@ -10,7 +10,7 @@ For the details of SpotMicroAI, please refer to the project documentation at: [h
 
 The brain of this project is designed to be powered by a Raspberry Pi 4. The Pi is connected to a PCA9685 controller board which allows communication to the 12 servos required to articulate the hips and legs. Sensors include a raspberry pi camera, MPU6050 Gyro accelerometer combination, and several ultrasound sensors. Some users have also integrated a RPiLIDAR A1 into their build.
 
-
+The structure of the robot is organised as below:
 ![spotmicro_urdf](./doc/spotmicro_urdf.png)
 
 # Usage 
